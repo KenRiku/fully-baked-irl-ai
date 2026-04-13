@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(ATTENDEE)
+  profession String?
+  city      String?
+  createdAt DateTime @default(now())
+
+  bookings  Booking[]
+}
+
+enum Role {
+  ATTENDEE
+  ADMIN
+}
+
+model Workshop {
+  id               String          @id @default(cuid())
+  title            String
+  profession       String
+  city             String
+  venueName        String
+  venueAddress     String
+  date             DateTime
+  startTime        String
+  endTime          String
+  capacity         Int
+  priceCents       Int
+  description      String          @db.Text
+  curriculumOutline String?        @db.Text
+  facilitatorName  String?
+  facilitatorBio   String?         @db.Text
+  status           WorkshopStatus  @default(DRAFT)
+  imageUrl         String?
+  createdAt        DateTime        @default(now())
+
+  bookings         Booking[]
+  resources        Resource[]
+}
+
+enum WorkshopStatus {
+  DRAFT
+  PUBLISHED
+  COMPLETED
+  CANCELLED
+}
+
+model Booking {
+  id              String        @id @default(cuid())
+  userId          String
+  workshopId      String
+  stripeSessionId String?
+  status          BookingStatus @default(CONFIRMED)
+  amountCents     Int
+  bookedAt        DateTime      @default(now())
+
+  user            User          @relation(fields: [userId], references: [id])
+  workshop        Workshop      @relation(fields: [workshopId], references: [id])
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  REFUNDED
+}
+
+model Resource {
+  id         String       @id @default(cuid())
+  workshopId String
+  title      String
+  fileUrl    String
+  type       ResourceType @default(PROMPT_LIBRARY)
+  createdAt  DateTime     @default(now())
+
+  workshop   Workshop     @relation(fields: [workshopId], references: [id])
+}
+
+enum ResourceType {
+  PROMPT_LIBRARY
+  SLIDES
+  HANDOUT
+}
+
+model CorporateInquiry {
+  id             String          @id @default(cuid())
+  companyName    String
+  contactName    String
+  contactEmail   String
+  phone          String?
+  teamSize       Int
+  profession     String
+  preferredDates String?
+  message        String          @db.Text
+  status         InquiryStatus   @default(NEW)
+  createdAt      DateTime        @default(now())
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
