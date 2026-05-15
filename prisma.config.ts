@@ -1,15 +1,2 @@
-import { defineConfig } from 'prisma/config'
-import { PrismaNeon } from '@prisma/adapter-neon'
-
-export default defineConfig({
-  earlyAccess: true,
-  schema: 'prisma/schema.prisma',
-  migrate: {
-    adapter: async () => {
-      const { neonConfig, Pool } = await import('@neondatabase/serverless')
-      neonConfig.webSocketConstructor = require('ws')
-      const pool = new Pool({ connectionString: process.env.DATABASE_URL! })
-      return new PrismaNeon(pool)
-    },
-  },
-})
+import { defineConfig } from "prisma/config";
+export default defineConfig({ schema: "prisma/schema.prisma", datasource: { url: "postgresql://neondb_owner:npg_Cmh4RWl9knbA@ep-late-term-akuhbpu4.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require" } });
